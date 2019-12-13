@@ -450,6 +450,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     for i in range(len(para_tokens)):
       start_chartok_pos = tok_start_to_chartok_index[i]
       end_chartok_pos = tok_end_to_chartok_index[i]
+      print('start_chartok_pos', start_chartok_pos)
+      print('end_chartok_pos', end_chartok_pos)
       start_orig_pos = _convert_index(chartok_to_orig_index, start_chartok_pos,
                                       n, is_start=True)
       end_orig_pos = _convert_index(chartok_to_orig_index, end_chartok_pos,
