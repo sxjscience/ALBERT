@@ -14,4 +14,5 @@ python3 run_squad_sp.py \
     --init_checkpoint ${MODEL_DIR}/variables/variables \
     --train_file ${SQUAD_DIR}/train-v1.1.json \
     --predict_file ${SQUAD_DIR}/dev-v1.1.json \
-    --train_feature_file ${OUT_DIR}/train_feature_file.fea
+    --train_feature_file ${OUT_DIR}/train_feature_file.fea \
+    --predict_feature_file ${OUT_DIR}/predict_feature_file.fea
