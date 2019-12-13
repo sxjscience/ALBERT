@@ -385,8 +385,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     # print(type(para_tokens[0]))
     # tok_cat_text = "".join(para_tokens).replace(
     #     tokenization.SPIECE_UNDERLINE, b" ")
-    print(type(tok_cat_text))
-    print(len(tok_cat_text), char_cnt)
+
     n, m = len(paragraph_text), len(tok_cat_text)
 
     if n > max_n or m > max_m:
