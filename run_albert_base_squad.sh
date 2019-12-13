@@ -3,7 +3,7 @@ set -x
 MODEL_DIR=albert_base_v2
 SQUAD_DIR=squad_data
 
-python run_squad_sp.py \
+python3 run_squad_sp.py \
     --do_train \
     --do_predict \
     --albert_config_file ${MODEL_DIR}/assets/albert_config.json \
