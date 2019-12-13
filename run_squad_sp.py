@@ -373,18 +373,18 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     tok_start_to_chartok_index = []
     tok_end_to_chartok_index = []
     char_cnt = 0
+    tok_cat_text = b''
     for i, token in enumerate(para_tokens):
-      # new_token = six.ensure_binary(token).replace(
-      #     tokenization.SPIECE_UNDERLINE, b" ")
-      print(type(tokenization.SPIECE_UNDERLINE))
-      new_token = token.replace(tokenization.SPIECE_UNDERLINE, ' ')
+      new_token = six.ensure_binary(token).replace(
+          tokenization.SPIECE_UNDERLINE, b" ")
       chartok_to_tok_index.extend([i] * len(new_token))
       tok_start_to_chartok_index.append(char_cnt)
       char_cnt += len(new_token)
       tok_end_to_chartok_index.append(char_cnt - 1)
-    print(type(para_tokens[0]))
-    tok_cat_text = "".join(para_tokens).replace(
-        tokenization.SPIECE_UNDERLINE, " ")
+      tok_cat_text += new_token
+    # print(type(para_tokens[0]))
+    # tok_cat_text = "".join(para_tokens).replace(
+    #     tokenization.SPIECE_UNDERLINE, b" ")
     print(type(tok_cat_text))
     print(len(tok_cat_text), char_cnt)
     n, m = len(paragraph_text), len(tok_cat_text)
