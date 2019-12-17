@@ -453,6 +453,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
       print('Example index:', example_index)
       print(paragraph_text)
       print(tok_cat_text)
+      print(orig_to_chartok_index)
       ch = input()
       continue
 
