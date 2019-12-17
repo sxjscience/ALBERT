@@ -377,7 +377,6 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     for i, token in enumerate(para_tokens):
       new_token = six.ensure_binary(token).replace(
           tokenization.SPIECE_UNDERLINE, b" ")
-      print('new_token=', new_token, 'para_token=', token)
       chartok_to_tok_index.extend([i] * len(new_token))
       tok_start_to_chartok_index.append(char_cnt)
       char_cnt += len(new_token)
@@ -419,8 +418,6 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
             f[i, j] = f[i, j - 1]
 
           f_prev = f[i - 1, j - 1] if i > 0 and j > 0 else 0
-          print('paragraph_text[{}] = {}, tok_cat_text[{}] = {}'.format(i, paragraph_text[i],
-                                                                        j, tok_cat_text[j]))
           if (tokenization.preprocess_text(
               paragraph_text[i], lower=FLAGS.do_lower_case,
               remove_space=False) == tok_cat_text[j]
@@ -447,8 +444,6 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
         j = j - 1
       else:
         i = i - 1
-    print(orig_to_chartok_index)
-    print(chartok_to_orig_index)
     if (all(v is None for v in orig_to_chartok_index) or
         f[n - 1, m - 1] < 0.8 * n):
       tf.logging.info("MISMATCH DETECTED!")
