@@ -419,6 +419,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
             f[i, j] = f[i, j - 1]
 
           f_prev = f[i - 1, j - 1] if i > 0 and j > 0 else 0
+          print('paragraph_text[{}] = {}, tok_cat_text[{}] = {}'.format(i, paragraph_text[i],
+                                                                        j, tok_cat_text[j]))
           if (tokenization.preprocess_text(
               paragraph_text[i], lower=FLAGS.do_lower_case,
               remove_space=False) == tok_cat_text[j]
