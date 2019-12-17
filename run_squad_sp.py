@@ -448,6 +448,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     if (all(v is None for v in orig_to_chartok_index) or
         f[n - 1, m - 1] < 0.8 * n):
       tf.logging.info("MISMATCH DETECTED!")
+      print('Example index:', example_index)
       print(paragraph_text)
       print(tok_cat_text)
       ch = input()
