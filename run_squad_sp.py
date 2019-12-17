@@ -355,10 +355,10 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
         tokenizer.sp_model,
         tokenization.preprocess_text(
             example.question_text, lower=FLAGS.do_lower_case))
-    print(tokenization.encode_pieces(tokenizer.sp_model,
-                                     tokenization.preprocess_text(example.question_text,
-                                                                  lower=FLAGS.do_lower_case)))
-    print(query_tokens)
+    # print(tokenization.encode_pieces(tokenizer.sp_model,
+    #                                  tokenization.preprocess_text(example.question_text,
+    #                                                               lower=FLAGS.do_lower_case)))
+    # print(query_tokens)
     if len(query_tokens) > max_query_length:
       query_tokens = query_tokens[0:max_query_length]
 
@@ -387,7 +387,9 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     #     tokenization.SPIECE_UNDERLINE, b" ")
 
     n, m = len(paragraph_text), len(tok_cat_text)
-
+    print(paragraph_text)
+    print(tok_cat_text)
+    ch = input()
     if n > max_n or m > max_m:
       max_n = max(n, max_n)
       max_m = max(m, max_m)
