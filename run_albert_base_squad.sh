@@ -3,8 +3,9 @@ set -x
 MODEL_DIR=albert_base_v2
 SQUAD_DIR=squad_data
 OUT_DIR=${MODEL_DIR}_squad_1.1_finetune
+FEATURE_DIR=generated_features
 
-python3 albert/run_squad_sp.py \
+python3 run_squad_sp.py \
     --do_train \
     --do_predict \
     --albert_config_file ${MODEL_DIR}/assets/albert_config.json \
@@ -13,6 +14,7 @@ python3 albert/run_squad_sp.py \
     --output_dir ${OUT_DIR} \
     --init_checkpoint ${MODEL_DIR}/variables/variables \
     --train_file ${SQUAD_DIR}/train-v1.1.json \
+    --train_feature_file ${FEATURE_DIR}/train_feature_file.fea \
     --predict_file ${SQUAD_DIR}/dev-v1.1.json \
     --train_feature_file ${OUT_DIR}/train_feature_file.fea \
     --predict_feature_file ${OUT_DIR}/predict_feature_file.fea
