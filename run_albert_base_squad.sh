@@ -4,7 +4,7 @@ MODEL_DIR=albert_base_v2
 SQUAD_DIR=squad_data
 OUT_DIR=${MODEL_DIR}_squad_1.1_finetune
 
-python3 alber/run_squad_sp.py \
+python3 albert/run_squad_sp.py \
     --do_train \
     --do_predict \
     --albert_config_file ${MODEL_DIR}/assets/albert_config.json \
