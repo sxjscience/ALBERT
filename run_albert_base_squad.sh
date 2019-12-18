@@ -4,6 +4,8 @@ MODEL_DIR=albert_base_v2
 SQUAD_DIR=squad_data
 OUT_DIR=${MODEL_DIR}_squad_1.1_finetune
 FEATURE_DIR=generated_features
+TRAIN_BATCH_SIZE=16
+
 
 python3 run_squad_sp.py \
     --do_train \
@@ -17,4 +19,5 @@ python3 run_squad_sp.py \
     --train_feature_file ${FEATURE_DIR}/train_feature_file.fea \
     --predict_file ${SQUAD_DIR}/dev-v1.1.json \
     --train_feature_file ${OUT_DIR}/train_feature_file.fea \
+    --train_batch_size ${TRAIN_BATCH_SIZE} \
     --predict_feature_file ${OUT_DIR}/predict_feature_file.fea
