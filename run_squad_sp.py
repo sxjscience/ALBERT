@@ -33,6 +33,8 @@ import tensorflow as tf
 from tensorflow.contrib import cluster_resolver as contrib_cluster_resolver
 from tensorflow.contrib import data as contrib_data
 from tensorflow.contrib import tpu as contrib_tpu
+from tensorflow import estimator
+
 
 # pylint: disable=g-import-not-at-top
 if six.PY2:
@@ -450,11 +452,10 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length,
     if (all(v is None for v in orig_to_chartok_index) or
         f[n - 1, m - 1] < 0.8 * n):
       tf.logging.info("MISMATCH DETECTED!")
-      print('Example index:', example_index)
-      print(paragraph_text)
-      print(tok_cat_text)
-      print(orig_to_chartok_index)
-      ch = input()
+      tf.logging.info('Example index:', example_index)
+      tf.logging.info(paragraph_text)
+      tf.logging.info(tok_cat_text)
+      tf.logging.info(orig_to_chartok_index)
       continue
 
     tok_start_to_orig_index = []
@@ -812,20 +813,29 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
 
       train_op = optimization.create_optimizer(
           total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
-
-      output_spec = contrib_tpu.TPUEstimatorSpec(
-          mode=mode,
-          loss=total_loss,
-          train_op=train_op,
-          scaffold_fn=scaffold_fn)
+      if use_tpu:
+          output_spec = contrib_tpu.TPUEstimatorSpec(
+              mode=mode,
+              loss=total_loss,
+              train_op=train_op,
+              scaffold_fn=scaffold_fn)
+      else:
+          output_spec = tf.estimator.EstimatorSpec(
+              mode=mode,
+              loss=total_loss,
+              train_op=train_op)
     elif mode == tf.estimator.ModeKeys.PREDICT:
       predictions = {
           "unique_ids": unique_ids,
           "start_logits": start_logits,
           "end_logits": end_logits,
       }
-      output_spec = contrib_tpu.TPUEstimatorSpec(
-          mode=mode, predictions=predictions, scaffold_fn=scaffold_fn)
+      if use_tpu:
+          output_spec = contrib_tpu.TPUEstimatorSpec(
+              mode=mode, predictions=predictions, scaffold_fn=scaffold_fn)
+      else:
+          output_spec = tf.estimator.EstimatorSpec(
+              mode=mode, predictions=predictions)
     else:
       raise ValueError(
           "Only TRAIN and PREDICT modes are supported: %s" % (mode))
@@ -835,7 +845,7 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
   return model_fn
 
 
-def input_fn_builder(input_file, seq_length, is_training, drop_remainder):
+def input_fn_builder(input_file, seq_length, is_training, drop_remainder, batch_size):
   """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
   name_to_features = {
@@ -863,10 +873,9 @@ def input_fn_builder(input_file, seq_length, is_training, drop_remainder):
 
     return example
 
-  def input_fn(params):
+  def input_fn():
     """The actual input function."""
-    batch_size = params["batch_size"]
-
+    # batch_size = params["batch_size"]
     # For training, we want a lot of parallel reading and shuffling.
     # For eval, we want no shuffling and parallel reading doesn't matter.
     d = tf.data.TFRecordDataset(input_file)
@@ -1189,15 +1198,24 @@ def main(_):
         FLAGS.tpu_name, zone=FLAGS.tpu_zone, project=FLAGS.gcp_project)
 
   is_per_host = contrib_tpu.InputPipelineConfig.PER_HOST_V2
-  run_config = contrib_tpu.RunConfig(
-      cluster=tpu_cluster_resolver,
-      master=FLAGS.master,
-      model_dir=FLAGS.output_dir,
-      save_checkpoints_steps=FLAGS.save_checkpoints_steps,
-      tpu_config=contrib_tpu.TPUConfig(
-          iterations_per_loop=FLAGS.iterations_per_loop,
-          num_shards=FLAGS.num_tpu_cores,
-          per_host_input_for_training=is_per_host))
+  if FLAGS.use_tpu:
+      run_config = contrib_tpu.RunConfig(
+          cluster=tpu_cluster_resolver,
+          master=FLAGS.master,
+          model_dir=FLAGS.output_dir,
+          save_checkpoints_steps=FLAGS.save_checkpoints_steps,
+          tpu_config=contrib_tpu.TPUConfig(
+              iterations_per_loop=FLAGS.iterations_per_loop,
+              num_shards=FLAGS.num_tpu_cores,
+              per_host_input_for_training=is_per_host))
+  else:
+      session_config = tf.ConfigProto()
+      session_config.gpu_options.allow_growth = True
+      session_config.gpu_options.per_process_gpu_memory_fraction = 0.9
+      run_config = tf.estimator.RunConfig(
+          session_config=session_config,
+          model_dir=FLAGS.output_dir,
+          save_checkpoints_steps=FLAGS.save_checkpoints_steps)
 
   train_examples = None
   num_train_steps = None
@@ -1225,12 +1243,17 @@ def main(_):
 
   # If TPU is not available, this will fall back to normal Estimator on CPU
   # or GPU.
-  estimator = contrib_tpu.TPUEstimator(
-      use_tpu=FLAGS.use_tpu,
-      model_fn=model_fn,
-      config=run_config,
-      train_batch_size=FLAGS.train_batch_size,
-      predict_batch_size=FLAGS.predict_batch_size)
+  if FLAGS.use_tpu:
+      estimator = contrib_tpu.TPUEstimator(
+          use_tpu=True,
+          model_fn=model_fn,
+          config=run_config,
+          train_batch_size=FLAGS.train_batch_size,
+          predict_batch_size=FLAGS.predict_batch_size)
+  else:
+      estimator = tf.estimator.Estimator(
+          model_fn=model_fn,
+          config=run_config)
 
   if FLAGS.do_train:
     # We write to a temporary file to avoid storing very large constant tensors
@@ -1261,7 +1284,8 @@ def main(_):
         input_file=FLAGS.train_feature_file,
         seq_length=FLAGS.max_seq_length,
         is_training=True,
-        drop_remainder=True)
+        drop_remainder=True,
+        batch_size=FLAGS.train_batch_size)
     estimator.train(input_fn=train_input_fn, max_steps=num_train_steps)
 
   if FLAGS.do_predict:
@@ -1307,7 +1331,8 @@ def main(_):
         input_file=FLAGS.predict_feature_file,
         seq_length=FLAGS.max_seq_length,
         is_training=False,
-        drop_remainder=False)
+        drop_remainder=False,
+        batch_size=1)
 
     # If running eval on the TPU, you will need to specify the number of
     # steps.
