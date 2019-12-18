@@ -18,6 +18,5 @@ python3 run_squad_sp.py \
     --train_file ${SQUAD_DIR}/train-v1.1.json \
     --train_feature_file ${FEATURE_DIR}/train_feature_file.fea \
     --predict_file ${SQUAD_DIR}/dev-v1.1.json \
-    --train_feature_file ${OUT_DIR}/train_feature_file.fea \
     --train_batch_size ${TRAIN_BATCH_SIZE} \
-    --predict_feature_file ${OUT_DIR}/predict_feature_file.fea
+    --predict_feature_file ${FEATURE_DIR}/predict_feature_file.fea
