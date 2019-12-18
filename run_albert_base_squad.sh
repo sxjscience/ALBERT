@@ -2,9 +2,9 @@ set -x
 
 MODEL_DIR=albert_base_v2
 SQUAD_DIR=squad_data
-OUT_DIR=${MODEL_DIR}_squad_1.1_finetune
 FEATURE_DIR=generated_features
 TRAIN_BATCH_SIZE=16
+OUT_DIR=${MODEL_DIR}_squad_1.1_finetune_${TRAIN_BATCH_SIZE}
 
 
 python3 run_squad_sp.py \
