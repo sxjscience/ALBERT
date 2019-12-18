@@ -794,11 +794,13 @@ def model_fn_builder(albert_config, init_checkpoint, learning_rate,
       seq_length = modeling.get_shape_list(input_ids)[1]
 
       def compute_loss(logits, positions):
-        one_hot_positions = tf.one_hot(
-            positions, depth=seq_length, dtype=tf.float32)
-        log_probs = tf.nn.log_softmax(logits, axis=-1)
-        loss = -tf.reduce_mean(
-            tf.reduce_sum(one_hot_positions * log_probs, axis=-1))
+        # one_hot_positions = tf.one_hot(
+        #     positions, depth=seq_length, dtype=tf.float32)
+        # log_probs = tf.nn.log_softmax(logits, axis=-1)
+        # loss = -tf.reduce_mean(
+        #     tf.reduce_sum(one_hot_positions * log_probs, axis=-1))
+        loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=positions,
+                                                                             logits=logits))
         return loss
 
       start_positions = features["start_positions"]
