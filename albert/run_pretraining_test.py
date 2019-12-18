@@ -20,8 +20,7 @@ from __future__ import division
 from __future__ import print_function
 import os
 import time
-import modeling
-import run_pretraining
+from albert import modeling, run_pretraining
 import numpy as np
 from six.moves import range
 import tensorflow as tf

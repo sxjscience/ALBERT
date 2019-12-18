@@ -22,7 +22,7 @@ import json
 import random
 import re
 
-import modeling
+from albert import modeling
 import six
 from six.moves import range
 import tensorflow as tf

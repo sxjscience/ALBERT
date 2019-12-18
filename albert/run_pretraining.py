@@ -20,8 +20,7 @@ from __future__ import division
 from __future__ import print_function
 import os
 import time
-import modeling
-import optimization
+from albert import optimization, modeling
 from six.moves import range
 import tensorflow as tf
 from tensorflow.contrib import cluster_resolver as contrib_cluster_resolver

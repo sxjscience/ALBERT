@@ -22,9 +22,7 @@ import json
 import math
 import os
 import random
-import modeling
-import optimization
-import tokenization
+from albert import optimization, modeling, tokenization
 import numpy as np
 import six
 from six.moves import map

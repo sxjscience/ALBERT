@@ -25,9 +25,7 @@ import math
 import re
 import string
 import sys
-import modeling
-import optimization
-import tokenization
+from albert import optimization, modeling, tokenization
 import numpy as np
 import six
 from six.moves import map
